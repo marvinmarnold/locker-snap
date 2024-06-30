@@ -14,7 +14,6 @@ import { ChainConfigComponent } from '../components/ChainConfig';
 // import { PaymasterDeployer } from '../components/PaymasterDeployer';
 import {
   CardContainer,
-  Container,
   Divider,
   DividerTitle,
   StyledBox,
@@ -49,7 +48,7 @@ const Index = () => {
   // a component but for this case it should be ok since this is an
   // internal development and testing tool.
   const [privateKey, setPrivateKey] = useState<string | null>();
-  const [salt, setSalt] = useState<string | null>();
+  const [salt, setSalt] = useState<string | null>('0x123');
   const [accountId, setAccountId] = useState<string | null>();
   const [accountObject, setAccountObject] = useState<string | null>();
   const [pageNum, setPageNum] = useState<number>(0);
@@ -242,64 +241,204 @@ const Index = () => {
     },
   ];
 
+  const openInNewTab = (url: string) => {
+    window.open(url, '_blank', 'noreferrer');
+  };
+
   const pages = [
     {
       title: 'Save Automatically',
       subtitle: 'with Every Transaction',
-      text: 'Start saving effortlessly using Coinbase Smart Wallet and pay via Stripe.',
+
+      text: (
+        <p className="text-3xl my-6 text-black">
+          Start saving effortlessly using Coinbase Smart Wallet and pay via
+          Stripe.
+        </p>
+      ),
       btn: 'Get started',
       img: '/piggy.png',
     },
     {
       title: 'Step 1',
       subtitle: 'Install Snap',
-      text: 'Make sure you are using this Flask version. Then click the button below to install.',
+      text: (
+        <div className="text-3xl my-6 text-black">
+          <ul className="list-disc list-inside space-y-4">
+            <li>
+              YOU MUST USE{' '}
+              <a
+                href="https://github.com/MetaMask/metamask-extension/pull/25098#issuecomment-2196458627"
+                target="_blank"
+                className="font-bold underline"
+              >
+                THIS VERSION
+              </a>{' '}
+              of Metamask/Flask.
+            </li>
+            <li> Install it on a Chrome profile without any other Metamask.</li>
+            <li>Then click the button below to install.</li>
+            <li>
+              It will open up a few setup screens, like the one to the right.
+            </li>
+            <li>
+              You are giving permission to install the Snap into your Metamask.
+            </li>
+          </ul>
+        </div>
+      ),
       btn: 'Install Snap',
       img: '/install-perms.png',
+      btnAction: async () => {
+        await handleConnectClick();
+      },
     },
     {
       title: 'Step 2',
       subtitle: 'Select Saving Percentage',
-      text: "Choose the percentage of each transaction you'd like to Save.",
+      text: (
+        <p className="text-3xl my-6 text-black">
+          Choose the percentage of each transaction you'd like to Save.
+        </p>
+      ),
+      beforeBtn: (
+        <div className="text-6xl text-black">
+          <label htmlFor="savingsPct">Select percent to save:</label>
+          <select id="savingsPct" name="savingsPct">
+            <option value="_0">0%</option>
+            <option value="_10">10%</option>
+            <option value="_20">20%</option>
+            <option value="_30">30%</option>
+            <option value="_40">40%</option>
+            <option value="_50">50%</option>
+            <option value="_60">60%</option>
+            <option value="_70">70%</option>
+            <option value="_80">80%</option>
+            <option value="_90">90%</option>
+            <option value="_100">100%</option>
+          </select>
+        </div>
+      ),
       btn: 'Set Percentage',
       img: '/select-pct.png',
     },
     {
       title: 'Step 3',
       subtitle: 'Setup Subscription',
-      text: 'Sign up for $5 per month to get gas-less transactions, auto savings, and monthly reports.',
+      text: (
+        <p className="text-3xl my-6 text-black">
+          Sign up for $5 per month to get gas-less transactions, auto savings,
+          and monthly reports.
+        </p>
+      ),
       btn: 'Hell ya, sign me up!',
       img: '/credit-card.png',
+      btnAction: async () => {
+        openInNewTab('https://buy.stripe.com/test_aEU7vH5ni3rw5nqaEE');
+      },
     },
     {
       title: 'Step 4',
       subtitle: 'Create savings account',
-      text: 'Click the button below to create your new savings account. It will pop up a Metamask window to confirm the transaction.',
+      text: (
+        <p className="text-3xl my-6 text-black">
+          Click the button below to create your new savings account. It will pop
+          up a Metamask window to confirm the transaction.
+        </p>
+      ),
+      beforeBtn: (
+        <div className="text-6xl text-black mt-6">
+          <label htmlFor="ownerPrivateKey">Owner private key:</label>
+          <input
+            id="ownerPrivateKey"
+            type="text"
+            className="w-full text-3xl"
+            onChange={(event: any) => setPrivateKey(event.currentTarget.value)}
+          />
+        </div>
+      ),
       btn: 'Create Account',
       img: '/create-account.png',
+      btnAction: async () => {
+        await createAccount();
+      },
+      skip: true,
     },
     {
       title: 'Step 5',
       subtitle: 'Fund Your New Account',
-      text: 'Send money to your new savings account address',
+      text: (
+        <div className="my-6 text-black space-y-4">
+          <p className="text-3xl">
+            Send money to your new savings account address so you can start
+            saving while you spend.
+          </p>
+          <p className="text-3xl font-bold">
+            Your address: 0x6335e0a045190ffefa22173bdf9cc4bde8191262
+          </p>
+        </div>
+      ),
       btn: 'Copy address',
       img: '/transfer.png',
     },
     {
       title: 'Step 6',
       subtitle: 'Start Using Your New Account',
-      text: 'Switch to your account in Metamask and transact anywhere on chain',
-      btn: 'Copy address',
+      text: (
+        <p className="text-3xl my-6 text-black">
+          Switch to your account in Metamask and transact anywhere on chain
+        </p>
+      ),
+      btn: 'View savings',
       img: '/switch-wallet.png',
     },
   ];
 
+  if (pageNum >= pages.length) {
+    return (
+      <div className="p-24 bg-[url('/background.png')] bg-cover text-5xl text-black space-y-4">
+        <div className="flex flex-row justify-between rounded-md bg-[#4C4EDD]/50 p-6">
+          <div className="w-1/3">
+            <p className="font-bold">Available balance</p>
+            <p>0 ETH</p>
+          </div>
+          <div className="w-1/3">
+            <p className="font-bold">Saving percent</p>
+            <p>10%</p>
+          </div>
+          <div className="w-1/3">
+            <p className="font-bold">Amount saved</p>
+            <p>0 ETH</p>
+          </div>
+        </div>
+        <div className="flex flex-col justify-between rounded-md bg-[#4C4EDD]/50 p-6">
+          <p className="font-bold">Transactions</p>
+          <table className="table-auto text-3xl mt-6">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Tx</th>
+                <th>TotalAmount</th>
+                <th>Saved Amount</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
   const page = pages[pageNum];
-  const { title, subtitle, text, btn, img } = page!;
-  const goNextPage = () => {
-    if (pageNum < pages.length - 1) {
-      setPageNum(pageNum + 1);
+  const { title, subtitle, text, btn, img, btnAction, beforeBtn, skip } = page!;
+
+  const goNextPage = async () => {
+    // Run custom action for the button
+    if (btnAction) {
+      await btnAction();
     }
+
+    setPageNum(pageNum + 1);
   };
 
   return (
@@ -308,14 +447,26 @@ const Index = () => {
         <div className="w-3/5">
           <p className="text-7xl text-black mt-48">{title}</p>
           <p className="text-7xl text-[#0002A1] mt-2">{subtitle}</p>
-          <p className="text-3xl my-6 text-black">{text}</p>
+          {text}
           <div className="px-4">
+            {beforeBtn}
             <button
-              className="w-full p-12 rounded-sm mt-24 bg-white text-black text-4xl"
+              className="w-full p-12 rounded-sm mt-24 bg-slate-200 hover:bg-slate-400 text-black text-4xl"
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
               onClick={goNextPage}
             >
               {btn}
             </button>
+
+            {skip && (
+              <button
+                className="w-full p-12 rounded-sm mt-4 bg-white hover:bg-slate-400 text-black text-4xl"
+                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                onClick={() => setPageNum(pageNum + 1)}
+              >
+                Skip &gt;
+              </button>
+            )}
           </div>
         </div>
         <div className="w-2/5">

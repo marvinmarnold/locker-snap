@@ -30,7 +30,6 @@ import type { BigNumberish } from 'ethers';
 import { ethers } from 'ethers';
 import { v4 as uuid } from 'uuid';
 
-import { DEFAULT_AA_FACTORIES } from './constants/aa-factories';
 import { CHAIN_IDS } from './constants/chain-ids';
 import {
   DUMMY_SIGNATURE,
@@ -188,7 +187,7 @@ export class AccountAbstractionKeyring implements Keyring {
     //   ethers.AbiCoder.defaultAbiCoder().encode(['uint256'], [random]);
 
     const salt =
-      '0x73c31044ac380f9d678c3a66715e07128c84b728ad7ac39c7c176b80e5fabaf9';
+      '0x73c31044ac380f9d678c3a66715e07128c84b728ad7ac39c7c176b80e5fabaf3';
     // const adminAbi = ethers.getBytes(
     //   ethers.AbiCoder.defaultAbiCoder().encode(['address'], [admin]),
     // );
@@ -209,7 +208,7 @@ export class AccountAbstractionKeyring implements Keyring {
     //   salt,
     // );
     // const aaAddress = await aaFactory.getAccountAddress(admin, salt);
-    const aaAddress = '0x80098689296c92a31ccdda1ca56473213800e25c';
+    const aaAddress = '0x556a19ac087c553dbbd28d63e3879071007394b5';
     console.log('aaAddress9: ', aaAddress);
 
     if (!isUniqueAddress(aaAddress, Object.values(this.#state.wallets))) {
@@ -536,7 +535,8 @@ export class AccountAbstractionKeyring implements Keyring {
     //   chainConfig?.customVerifyingPaymasterAddress;
 
     const bundlerUrl =
-      'https://bundler.biconomy.io/api/v2/11155111/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44';
+      'https://bundler.biconomy.io/api/v2/84532/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44';
+    // 'https://bundler.biconomy.io/api/v2/11155111/nJPK7B3ru.dd7f7861-190d-41bd-af80-6877f74b8f44';
     const ethBaseUserOp: EthBaseUserOperation = {
       nonce,
       initCode,
