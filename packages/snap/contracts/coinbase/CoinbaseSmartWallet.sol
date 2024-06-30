@@ -22,6 +22,9 @@ import {MultiOwnable} from "./MultiOwnable.sol";
 contract CoinbaseSmartWallet is ERC1271, IAccount, MultiOwnable, UUPSUpgradeable, Receiver {
     uint256 public savingsBalance;
     uint256 public constant SAVINGS_PERCENTAGE = 1;
+    // immutables: no SLOAD
+    uint256 public immutable timeLockInit;
+    uint256 public immutable timelock;
 
     /// @notice A wrapper struct used for signature validation so that callers
     ///         can identify the owner that signed.
@@ -61,6 +64,8 @@ contract CoinbaseSmartWallet is ERC1271, IAccount, MultiOwnable, UUPSUpgradeable
     ///
     /// @param selector The selector of the call.
     error SelectorNotAllowed(bytes4 selector);
+
+    error FundsLocked();
 
     /// @notice Thrown in validateUserOp if the key of `UserOperation.nonce` does not match the calldata.
     ///
@@ -116,6 +121,10 @@ contract CoinbaseSmartWallet is ERC1271, IAccount, MultiOwnable, UUPSUpgradeable
         bytes[] memory owners = new bytes[](1);
         owners[0] = abi.encode(address(0));
         _initializeOwners(owners);
+        timelock = 100000;
+
+        // initialize timplock
+        timeLockInit = block.timestamp;
     }
 
     /// @notice Initializes the account with the `owners`.
@@ -298,6 +307,10 @@ contract CoinbaseSmartWallet is ERC1271, IAccount, MultiOwnable, UUPSUpgradeable
     function _call(address target, uint256 value, bytes memory data) internal {
         if (address(this).balance - value < savingsBalance) {
             revert InsufficientBalance();
+        }
+
+         if (block.timestamp < timeLockInit + timelock) {
+            revert FundsLocked();
         }
 
         uint256 savingsAmount = (value * 1) / 100;

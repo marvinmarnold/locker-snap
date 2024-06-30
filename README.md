@@ -11,33 +11,67 @@ Locker HODL pays gas for you and bills your card via Stripe.
 
 ## Where to find it
 
+- Video: https://www.loom.com/share/93ecca145ced48c2bccf0343d4f481c3?sid=c55a9571-f441-439a-8f81-aaee5c4b3c8a
 - Base Sepolia
   - implementation: [0x3a7B8aC9d9565EB9D32De95356e113190F857aB4](https://basescan.org/address/0x3a7B8aC9d9565EB9D32De95356e113190F857aB4)
   - factory: [0x86FC046543717A67b03847BEDE9560FB4368d274](https://basescan.org/address/0x86FC046543717A67b03847BEDE9560FB4368d274)
 
+Unable to deploy to production. See notes in `Challenges`.
+
 ## Why you should care
 
-- The problem
-- Context about Auto HODL and Locker.
+Not everyone flosses at night and puts 20% of their savings into a diversified saving strategy.
+Locker HODL is for the everyday crypto user that wants basic savings on-chain.
+Imagine your returns today if you just put 1% of your ETH volume into savings starting 5 years ago.
 
-## How to use it
+Locker HODL can also simplify your on-chain transactions.
+Now you can pay for your gas with credit card via Stripe and we'll pay on-chain for you.
 
-TODO: Video link
+## Context
 
-1. Install this version of Flask (Metamask)
-2. Go to website
+No code from Locker has been reused. This repo was started fresh just for the hackathon.
+
+Locker HODL was first conceptualized at ETH Denver as [Auto HODL](https://devfolio.co/projects/auto-hodl-e5dd).
+At that point, MetaMask Snap was not yet stable, so savings was implemented as a standalone proxy contract.
+
+Since ETH Denver, Auto HODL was rebranded as [Locker](https://locker.money).
+Locker automates inbound payroll deposit for web3 contractors.
 
 ## How it's made
 
 - Metamask Snap account abstraction template
-- Added foundry and copied in Coinbase Smart Wallet
-- Modify Coinbase Smart Wallet code for saving features
+- Added foundry and [copied in](https://github.com/marvinmarnold/locker-snap/tree/cd7c14cd8adfd9a9c76494f17a1b04e0834aed37/packages/snap/contracts/coinbase) Coinbase Smart Wallet
+- [Modify](https://github.com/marvinmarnold/locker-snap/blob/cd7c14cd8adfd9a9c76494f17a1b04e0834aed37/packages/snap/contracts/coinbase/CoinbaseSmartWallet.sol#L24) Coinbase Smart Wallet code for saving features
   - internal treasury that you can't spend beyond
   - time-lock
 
-TODO: architecture diagram
-
 ## Challenges
+
+### Getting Coinbase Smart Wallet to play nice with Snaps
+
+- Snaps uses hardhat, CSW uses foundry
+- For some reason, unable to interact with smart contract from [some Snap code](https://github.com/marvinmarnold/locker-snap/blob/cd7c14cd8adfd9a9c76494f17a1b04e0834aed37/packages/snap/src/keyring.ts#L206). Had to hardcode values per wallet.
+- Snaps is very sensitive to different bundler and RPC providers.
+- Was not able to reliably execute transactions through Snap for the smart wallet. Still debugging root causes.
+
+### Coinbase Smart Wallet module uncertainty
+
+- Ideally would like to implement savings logic as a module so that it can be installed into existing CSW.
+- CSW does not currently support ERC-7579 or ERC-6900. No clear message from team what direction it's headed.
+
+### Gatsby site deployment
+
+Something about the workspaces structure is forcing the foundry code to compile unnecessarily for the Gatsby site, leading to build errors.
+Site also needs to communicate with snap server which is hard to coordinate in prod in time for submission deadline.
+
+### Custody
+
+To make the CSW non-custodial, a private key needs to be supplied that owns it.
+This is currently pasted into the UI which is awkward and not secure.
+
+## Technologies
+
+Coinbase smart wallet, Stripe, Metamask Snaps, Gatsby, Foundry, Hardhat, Biconomy.
 
 ## Local development
 
@@ -63,4 +97,4 @@ cast call FACTORY_ADDRESS --rpc-url RPC_URL  --account CAST_ACCOUNT_NAME "getAdd
 
 ## Credit
 
-Designs made by [@iiankitadixit](https://x.com/iiankitadixit)
+Designs made by [@iiankitadixit](https://x.com/iiankitadixit).
